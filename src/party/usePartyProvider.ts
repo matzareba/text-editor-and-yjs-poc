@@ -19,7 +19,7 @@ export const usePartyProvider = ({
       type === "self-hosted"
         ? PARTY_HOST_SELF_HOSTED_URL
         : PARTY_HOST_PARTYKIT_CLOUD_URL,
-    party: PARTY_ID,
+    party: type === "self-hosted" ? PARTY_ID : "main",
     room,
   });
 
