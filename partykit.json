@@ -1,0 +1,5 @@
+{
+  "name": "partykit-poc",
+  "main": "src/party/partyCloudServer.ts",
+  "compatibilityDate": "2025-06-20"
+}

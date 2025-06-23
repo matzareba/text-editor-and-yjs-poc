@@ -1,0 +1,15 @@
+name = "partykit-poc"
+main = "src/party/partyOwnServer.ts"
+compatibility_date = "2025-06-20"
+
+[[durable_objects.bindings]]
+name = "Document"
+class_name = "Document"
+
+[[migrations]]
+tag = "v1" # Should be unique for each entry
+new_sqlite_classes = ["Document"]
+
+[vars]
+CLOUDFLARE_ACCOUNT_ID = ""
+CLOUDFLARE_API_TOKEN = ""

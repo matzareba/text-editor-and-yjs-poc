@@ -1,0 +1,39 @@
+{
+  "name": "text-editor-poc",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "start": "vite",
+    "dev": "vite",
+    "build:prod": "tsc && vite build",
+    "preview": "vite preview",
+    "partykit-deploy:dev": "partykit deploy",
+    "partykit-deploy:prod": "wrangler deploy"
+  },
+  "dependencies": {
+    "@blocknote/ariakit": "latest",
+    "@blocknote/core": "latest",
+    "@blocknote/mantine": "latest",
+    "@blocknote/react": "latest",
+    "@blocknote/shadcn": "latest",
+    "@tiptap/extension-collaboration": "^2.14.1",
+    "@tiptap/extension-collaboration-cursor": "^2.14.1",
+    "@tiptap/react": "^2.14.1",
+    "@tiptap/starter-kit": "^2.14.1",
+    "partyserver": "^0.0.72",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.2",
+    "y-partykit": "^0.0.33",
+    "y-partyserver": "^0.0.45",
+    "yjs": "^13.6.27"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250620.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.5.2",
+    "partykit": "^0.0.115",
+    "vite": "^6.3.5"
+  }
+}
