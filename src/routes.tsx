@@ -3,6 +3,7 @@ import { BlockNotePartyKitCloudPage } from "./_blockNote/BlockNotePartyKitCloudP
 import { Layout } from "./components/Layout";
 import { BlockNoteSelfHostPage } from "./_blockNote/BlockNoteSelfHostPage";
 import { TiptapSelfHostPage } from "./_tipTap/TipTapSelfHostPage";
+import { BlockNoteCallSheetPage } from "./_blockNote/BlockNoteCallSheetPage";
 
 export const routes: RouteObject[] = [
   {
@@ -12,6 +13,10 @@ export const routes: RouteObject[] = [
       {
         path: "/",
         element: <div>Home</div>,
+      },
+      {
+        path: "/blocknote-callsheet",
+        element: <BlockNoteCallSheetPage />,
       },
       {
         path: "/blocknote-partykit",

@@ -8,6 +8,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { path: "/", label: "Home" },
+  { path: "/blocknote-callsheet", label: "BlockNote CallSheet" },
   { path: "/blocknote-partykit", label: "BlockNote on PartyKit Cloud" },
   { path: "/blocknote-owncf", label: "BlockNote on Own CloudFlare" },
   { path: "/tiptap-owncf", label: "Tiptap on Own CloudFlare" },
