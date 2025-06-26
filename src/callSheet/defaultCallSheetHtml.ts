@@ -1,4 +1,5 @@
-export const defaultCallSheetHtml = `<table>
+export const defaultCallSheetHtml = `
+<table>
   <tr>
     <td data-background-color="gray" colspan="1" rowspan="1">
       <p><strong>Start Time</strong></p>
@@ -79,4 +80,5 @@ export const defaultCallSheetHtml = `<table>
       <p></p>
     </td>
   </tr>
-</table>`;
+</table>
+`.trim();

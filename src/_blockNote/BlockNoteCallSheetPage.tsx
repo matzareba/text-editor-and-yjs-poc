@@ -4,7 +4,7 @@ import { BlockNoteEditor } from "./components/BlockNoteEditor";
 const ROOM_ID = "blocknote-partykit-cloud";
 
 const config = {
-  enableCallSheetEdits: true,
+  enableCallSheet: true,
 };
 
 export const BlockNoteCallSheetPage = () => {

@@ -23,9 +23,20 @@ import {
   DefaultThreadStoreAuth,
   YjsThreadStore,
 } from "@blocknote/core/comments";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState, useRef } from "react";
 import { BlockNoteInsertCallSheetButton } from "./BlockNoteCallSheetButtons/BlockNoteInsertCallSheetButton";
 import { BlockNoteUpdateCallSheetButton } from "./BlockNoteCallSheetButtons/BlockNoteUpdateCallSheetButton";
+import { CallSheetTableExtension } from "../extensions/CallSheetTableExtension/CallSheetTableExtension";
+import { slashInsertCallSheetTableButton } from "../extensions/CallSheetTableExtension/slashCommandIntegration";
+import { CallSheetTableHandlesProsemirrorPlugin } from "../extensions/CallSheetTableExtension/tableHandles/CallSheetTableHandlesPlugin";
+import { CallSheetTableHandlesController } from "../extensions/CallSheetTableExtension/tableHandles/CallSheetTableHandlesController";
+import {
+  getCallSheetTableHeaderSlashMenuItems,
+  isInCallSheetTableHeader,
+} from "../extensions/CallSheetTableExtension/tableHeaderSlashCommandIntegration";
+import { CallSheetHeaderHeaderFormattingToolbar } from "../extensions/CallSheetTableExtension/CallSheetHeaderHeaderFormattingToolbar";
+import { getCallSheetDbDataModel } from "../extensions/CallSheetTableExtension/callSheetTableToDbDataModel";
+import { allExpanded, defaultStyles, JsonView } from "react-json-view-lite";
 
 const resolveUsers = async (userIds: string[]) => {
   return userIds.map((userId) => ({
@@ -44,7 +55,7 @@ export const BlockNoteEditor = memo(
     provider: YProvider;
     initialHtmlContent?: string;
     config?: {
-      enableCallSheetEdits?: boolean;
+      enableCallSheet?: boolean;
     };
   }) => {
     const threadStore = useMemo(() => {
@@ -74,6 +85,19 @@ export const BlockNoteEditor = memo(
         headers: true,
         splitCells: true,
       },
+      disableExtensions: ["BlockNoteTableExtension"],
+      extensions: config?.enableCallSheet
+        ? [(editor) => new CallSheetTableHandlesProsemirrorPlugin(editor)]
+        : undefined,
+      _tiptapOptions: config?.enableCallSheet
+        ? {
+            extensions: [CallSheetTableExtension],
+            // TODO: add this for handling pasting call sheet table. note: blockeditor overrides this
+            // editorProps: {
+            //   transformPasted: callSheetTransformPasted,
+            // },
+          }
+        : {},
       resolveUsers,
     });
 
@@ -83,7 +107,6 @@ export const BlockNoteEditor = memo(
         if (!editor) {
           return;
         }
-
         if (
           editor.document.length === 1 &&
           typeof initialHtmlContent === "string"
@@ -94,12 +117,10 @@ export const BlockNoteEditor = memo(
           editor.replaceBlocks(editor.document, parsedDoc);
         }
       };
-
       // TODO: check that this is correct
       if (provider.bcconnected) {
         setDefault();
       }
-
       provider.on("sync", setDefault);
       return () => provider.off("sync", setDefault);
     }, [provider, editor]);
@@ -128,28 +149,35 @@ export const BlockNoteEditor = memo(
         <BlockNoteView
           editor={editor}
           formattingToolbar={false}
+          slashMenu={false}
           onChange={(e) => {
             setDebugState(e.document);
           }}
         >
-          {config?.enableCallSheetEdits && <BlockNoteUpdateCallSheetButton />}
-          {config?.enableCallSheetEdits && <BlockNoteInsertCallSheetButton />}
+          {config?.enableCallSheet && <BlockNoteUpdateCallSheetButton />}
+          {config?.enableCallSheet && <BlockNoteInsertCallSheetButton />}
 
           <FormattingToolbarController
-            formattingToolbar={() => (
-              <FormattingToolbar
-                blockTypeSelectItems={[
-                  {
-                    name: blockNoteLemonlightButtonConfig.type,
-                    type: blockNoteLemonlightButtonType,
-                    icon: BlockNoteLemonlightButtonIcon,
-                    isSelected: (block) =>
-                      block.type === blockNoteLemonlightButtonType,
-                  } satisfies BlockTypeSelectItem,
-                  ...blockTypeSelectItems(editor.dictionary),
-                ]}
-              />
-            )}
+            formattingToolbar={() => {
+              if (config?.enableCallSheet && isInCallSheetTableHeader(editor)) {
+                return <CallSheetHeaderHeaderFormattingToolbar />;
+              }
+
+              return (
+                <FormattingToolbar
+                  blockTypeSelectItems={[
+                    {
+                      name: blockNoteLemonlightButtonConfig.type,
+                      type: blockNoteLemonlightButtonType,
+                      icon: BlockNoteLemonlightButtonIcon,
+                      isSelected: (block) =>
+                        block.type === blockNoteLemonlightButtonType,
+                    } satisfies BlockTypeSelectItem,
+                    ...blockTypeSelectItems(editor.dictionary),
+                  ]}
+                />
+              );
+            }}
           />
           <SuggestionMenuController
             triggerCharacter={"/"}
@@ -165,10 +193,40 @@ export const BlockNoteEditor = memo(
                 slashInsertBlockNoteLemonlightButton(editor)
               );
 
+              if (config?.enableCallSheet) {
+                if (isInCallSheetTableHeader(editor)) {
+                  return filterSuggestionItems(
+                    getCallSheetTableHeaderSlashMenuItems(editor),
+                    query
+                  );
+                }
+
+                defaultItems.splice(
+                  firstBasicBlockIndex,
+                  0,
+                  slashInsertCallSheetTableButton(editor)
+                );
+              }
+
               return filterSuggestionItems(defaultItems, query);
             }}
           />
+
+          {config?.enableCallSheet && <CallSheetTableHandlesController />}
         </BlockNoteView>
+
+        {config?.enableCallSheet && (
+          <div>
+            <br />
+            Call sheet data model:
+            <br />
+            <JsonView
+              data={getCallSheetDbDataModel(editor.document) ?? []}
+              shouldExpandNode={allExpanded}
+              style={defaultStyles}
+            />
+          </div>
+        )}
       </div>
     );
   }

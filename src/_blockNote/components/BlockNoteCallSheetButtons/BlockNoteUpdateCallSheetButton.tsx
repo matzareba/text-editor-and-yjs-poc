@@ -1,9 +1,12 @@
 import { useBlockNoteEditor } from "@blocknote/react";
-import { defaultCallSheetHtml } from "../../../callSheet/defaultCallSheetHtml";
+import { callSheetTableBlockType } from "../../extensions/CallSheetTableExtension/consts";
 
 export const BlockNoteUpdateCallSheetButton = () => {
   const editor = useBlockNoteEditor();
-  const callSheetTable = editor.document.find((node) => node.type === "table");
+  const callSheetTable = editor.document.find(
+    // @ts-ignore TODO: fix this
+    (node) => node.type === callSheetTableBlockType
+  );
 
   const handleUpdateCallSheet = async () => {
     const id = callSheetTable?.id!;

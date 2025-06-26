@@ -1,6 +1,6 @@
 import { defaultProps, insertOrUpdateBlock } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
-import { blockNoteSchema } from "../blockNoteSchema";
+import { BlockNoteEditorType } from "../blockNoteSchema";
 import { CiLemon } from "react-icons/ci";
 import "./blockNoteLemonlightButton.css";
 
@@ -46,7 +46,7 @@ export const BlockNoteLemonlightButton = createReactBlockSpec(
 export const BlockNoteLemonlightButtonIcon = CiLemon;
 
 export const slashInsertBlockNoteLemonlightButton = (
-  editor: typeof blockNoteSchema.BlockNoteEditor
+  editor: BlockNoteEditorType
 ) => ({
   title: "Send Email",
   subtext: "Lemonlight Platform email action",
