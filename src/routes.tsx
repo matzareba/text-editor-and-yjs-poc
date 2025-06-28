@@ -4,6 +4,7 @@ import { Layout } from "./components/Layout";
 import { BlockNoteSelfHostPage } from "./_blockNote/BlockNoteSelfHostPage";
 import { TiptapSelfHostPage } from "./_tipTap/TipTapSelfHostPage";
 import { BlockNoteCallSheetPage } from "./_blockNote/BlockNoteCallSheetPage";
+import { LexicalSelfHostPage } from "./_lexical/LexicalSelfHostPage";
 
 export const routes: RouteObject[] = [
   {
@@ -29,6 +30,10 @@ export const routes: RouteObject[] = [
       {
         path: "/tiptap-owncf",
         element: <TiptapSelfHostPage />,
+      },
+      {
+        path: "/lexical-owncf",
+        element: <LexicalSelfHostPage />,
       },
     ],
   },
