@@ -12,6 +12,7 @@ const navItems: NavItem[] = [
   { path: "/blocknote-partykit", label: "BlockNote on PartyKit Cloud" },
   { path: "/blocknote-owncf", label: "BlockNote on Own CloudFlare" },
   { path: "/tiptap-owncf", label: "Tiptap on Own CloudFlare" },
+  { path: "/lexical-owncf", label: "Lexical on Own CloudFlare" },
 ];
 
 export const NavBar = () => {

@@ -10,6 +10,7 @@ import {
   tipTapLemonlightButtonType,
 } from "./TipTapLemonlightButton/TipTapLemonlightButton";
 import { TipTapSlashCommands } from "./TipTapSlashCommands";
+import { GridNode, gridNodeName } from "../../tiptap/nodes";
 
 interface TipTapEditorProps {
   provider: YProvider;
@@ -23,6 +24,19 @@ const TipTapToolbar = ({ editor }: { editor: any }) => {
         .focus()
         .insertContent({
           type: tipTapLemonlightButtonType,
+        })
+        .run();
+    }
+  };
+
+  const insertGridNode = () => {
+    if (editor) {
+      editor
+        .chain()
+        .focus()
+        .insertContent({
+          type: gridNodeName,
+          content: [],
         })
         .run();
     }
@@ -58,6 +72,23 @@ const TipTapToolbar = ({ editor }: { editor: any }) => {
         <TipTapLemonlightButtonIcon size={16} />
         Send Email
       </button>
+      <button
+        onClick={insertGridNode}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.25rem",
+          padding: "0.25rem 0.5rem",
+          border: "1px solid #dee2e6",
+          borderRadius: "4px",
+          backgroundColor: "white",
+          cursor: "pointer",
+          fontSize: "0.875rem",
+        }}
+        title="Insert MUI X Grid Pro"
+      >
+        Grid
+      </button>
     </div>
   );
 };
@@ -77,6 +108,7 @@ export const TipTapEditor = ({ provider }: TipTapEditorProps) => {
       }),
       TipTapLemonlightButton,
       TipTapSlashCommands,
+      GridNode,
     ],
   });
 
