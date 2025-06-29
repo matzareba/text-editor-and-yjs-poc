@@ -16,6 +16,8 @@ export const GridNode = Node.create({
   // Make it draggable in the editor
   draggable: true,
 
+  atom:true,
+
   
   // Define how to parse the node from HTML
   parseHTML() {
