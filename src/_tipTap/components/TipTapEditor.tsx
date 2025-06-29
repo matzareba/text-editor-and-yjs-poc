@@ -1,9 +1,10 @@
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
+import HistoryExtension from "@tiptap/extension-history";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { MY_USER } from "../../party/consts";
-import YProvider from "y-partyserver/provider";
+import { useProvider } from "../../contexts/ProviderContext";
 import {
   TipTapLemonlightButton,
   TipTapLemonlightButtonIcon,
@@ -11,10 +12,6 @@ import {
 } from "./TipTapLemonlightButton/TipTapLemonlightButton";
 import { TipTapSlashCommands } from "./TipTapSlashCommands";
 import { GridNode, gridNodeName } from "../../tiptap/nodes";
-
-interface TipTapEditorProps {
-  provider: YProvider;
-}
 
 const TipTapToolbar = ({ editor }: { editor: any }) => {
   const insertLemonlightButton = () => {
@@ -93,7 +90,8 @@ const TipTapToolbar = ({ editor }: { editor: any }) => {
   );
 };
 
-export const TipTapEditor = ({ provider }: TipTapEditorProps) => {
+export const TipTapEditor = () => {
+  const provider = useProvider();
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -101,6 +99,7 @@ export const TipTapEditor = ({ provider }: TipTapEditorProps) => {
       }),
       Collaboration.configure({
         document: provider.doc,
+        field: "content",
       }),
       CollaborationCursor.configure({
         provider: provider,

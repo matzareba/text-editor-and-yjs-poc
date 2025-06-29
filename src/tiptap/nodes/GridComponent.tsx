@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
+import { NodeViewContent, NodeViewWrapper, useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Collaboration from "@tiptap/extension-collaboration";
+import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
+import { MY_USER } from "../../party/consts";
+import { useProvider } from "../../contexts/ProviderContext";
 import {
   DataGridPro,
   GridColDef,
@@ -15,6 +20,57 @@ interface GridRow {
   name: string;
   startDate: Date | null;
   description: string;
+}
+
+function TipTapInlineEditor(props: { params: GridRenderCellParams }) {
+  const { params } = props;
+  const provider = useProvider();
+  
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        history: false,
+      }),
+      Collaboration.configure({
+        document: provider.doc,
+        field: `cell-${params.id}-${params.field}`,
+      }),
+      CollaborationCursor.configure({
+        provider: provider,
+        user: MY_USER,
+      }),
+    ],
+    content: params.value || '', // Use the cell value as initial content
+    editorProps: {
+      attributes: {
+        style: 'outline: none; border: none; padding: 4px; min-height: 20px;',
+      },
+    },
+    onUpdate: ({ editor }) => {
+      // Update the grid data when editor content changes
+      const content = editor.getHTML();
+      // You would typically call a callback here to update the grid data
+      // For now, we'll just log the change
+      console.log('Editor content updated:', content);
+    },
+  });
+
+  if (!editor) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div style={{ width: '100%', height: '100%' }}>
+      <EditorContent
+        editor={editor}
+        style={{
+          width: '100%',
+          height: '100%',
+          minHeight: '20px',
+        }}
+      />
+    </div>
+  );
 }
 
 const GridComponent = () => {
@@ -66,21 +122,10 @@ const GridComponent = () => {
         field: "description",
         headerName: "Description",
         flex: 2,
-        editable: true,
-        renderCell: (params: GridRenderCellParams) => {
-          return (
-            <NodeViewWrapper>
-              <NodeViewContent className="content is-editable" />
-            </NodeViewWrapper>
-          );
-        },
-        renderEditCell: (params: GridRenderCellParams) => {
-          return (
-            <NodeViewWrapper>
-              <NodeViewContent className="content is-editable" />
-            </NodeViewWrapper>
-          );
-        },
+        // editable: true,
+        renderCell: (params: GridRenderCellParams) => (
+          <TipTapInlineEditor params={params} />
+        ),
       },
     ],
     [rows],
