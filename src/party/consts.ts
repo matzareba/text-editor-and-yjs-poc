@@ -4,7 +4,7 @@ export const PARTY_HOST_PARTYKIT_CLOUD_URL =
   "https://partykit-poc.matzareba.partykit.dev";
 
 export const PARTY_ID = "document";
-export const PARTY_FRAGMENT_ID = "fragment8";
+export const PARTY_FRAGMENT_ID = "fragment22";
 
 const users = [
   {

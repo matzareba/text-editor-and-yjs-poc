@@ -95,6 +95,7 @@ export const defaultCallSheetNode = {
               backgroundColor: "gray",
               textColor: "default",
               textAlignment: "left",
+              "data-type": "person",
             },
           },
           {
@@ -196,7 +197,7 @@ export const defaultCallSheetNode = {
             content: [
               {
                 type: "text",
-                text: "Interview Subject 1",
+                text: "Darth Vader",
                 styles: {},
               },
             ],
@@ -206,6 +207,7 @@ export const defaultCallSheetNode = {
               backgroundColor: "default",
               textColor: "gray",
               textAlignment: "left",
+              "data-type": "person",
             },
           },
           {
@@ -302,7 +304,7 @@ export const defaultCallSheetNode = {
             content: [
               {
                 type: "text",
-                text: "Interview Subject 2",
+                text: "Luke Skywalker",
                 styles: {},
               },
             ],
@@ -312,6 +314,7 @@ export const defaultCallSheetNode = {
               backgroundColor: "default",
               textColor: "gray",
               textAlignment: "left",
+              "data-type": "person",
             },
           },
           {
@@ -394,6 +397,7 @@ export const defaultCallSheetNode = {
               backgroundColor: "default",
               textColor: "default",
               textAlignment: "left",
+              "data-type": "person",
             },
           },
           {

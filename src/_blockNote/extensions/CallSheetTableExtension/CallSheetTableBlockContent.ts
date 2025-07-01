@@ -1,6 +1,6 @@
 // https://github.com/TypeCellOS/BlockNote/blob/6418d47f52229dc1514a33459a1d099c9cad5846/packages/core/src/blocks/TableBlockContent/TableBlockContent.ts
 import { Node, mergeAttributes } from "@tiptap/core";
-import { TableCell } from "@tiptap/extension-table-cell";
+import { TableCell, TableCellOptions } from "@tiptap/extension-table-cell";
 import { TableHeaderOptions } from "@tiptap/extension-table-header";
 import { DOMParser, Fragment, Node as PMNode, Schema } from "prosemirror-model";
 import { TableView } from "prosemirror-tables";
@@ -17,6 +17,9 @@ import {
   createStronglyTypedTiptapNode,
 } from "@blocknote/core";
 import { callSheetTableBlockType } from "./consts";
+import TalentSelect from "../../components/TalentSelectNode/TalentSelect";
+import { createRoot } from "react-dom/client";
+import React from "react";
 
 export const callSheetTablePropSchema = {
   textColor: defaultProps.textColor,
@@ -309,21 +312,23 @@ export const CallSheetTableHeader = Node.create<TableHeaderOptions>({
       let contentDOM: HTMLElement | null = null;
 
       if (node.attrs["data-type"] === "duration") {
-        const selectElement = document.createElement("select");
+        // read only column header
+        const element = document.createElement("div");
+        element.textContent = "Duration";
 
         // TODO: add updating state
 
-        const option10 = document.createElement("option");
-        option10.value = "10:00";
-        option10.textContent = "10:00";
-        selectElement.appendChild(option10);
+        // const option10 = document.createElement("option");
+        // option10.value = "10:00";
+        // option10.textContent = "10:00";
+        // selectElement.appendChild(option10);
 
-        const option30 = document.createElement("option");
-        option30.value = "30:00";
-        option30.textContent = "30:00";
-        selectElement.appendChild(option30);
+        // const option30 = document.createElement("option");
+        // option30.value = "30:00";
+        // option30.textContent = "30:00";
+        // selectElement.appendChild(option30);
 
-        dom.appendChild(selectElement);
+        dom.appendChild(element);
         contentDOM = null;
       } else {
         contentDOM = document.createElement("div");
@@ -342,6 +347,179 @@ export const CallSheetTableHeader = Node.create<TableHeaderOptions>({
   },
 });
 
+export const CallSheetTableCell = Node.create<TableCellOptions>({
+  name: "tableCell",
+
+  addOptions() {
+    return {
+      HTMLAttributes: {},
+    };
+  },
+
+  // content: "block+",
+
+  // addAttributes() {
+  //   return {
+  //     colspan: {
+  //       default: 1,
+  //     },
+  //     rowspan: {
+  //       default: 1,
+  //     },
+  //     colwidth: {
+  //       default: null,
+  //       parseHTML: (element) => {
+  //         const colwidth = element.getAttribute("colwidth");
+  //         const value = colwidth
+  //           ? colwidth.split(",").map((width) => parseInt(width, 10))
+  //           : null;
+
+  //         return value;
+  //       },
+  //     },
+  //   };
+  // },
+
+  tableRole: "cell",
+
+  isolating: true,
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "td",
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
+      0,
+    ];
+  },
+
+  content: "tableContent+",
+  parseHTML() {
+    return [
+      {
+        tag: "td",
+        // As `td` elements can contain multiple paragraphs, we need to merge their contents
+        // into a single one so that ProseMirror can parse everything correctly.
+        getContent: (node, schema) =>
+          parseTableContent(node as HTMLElement, schema),
+      },
+    ];
+  },
+  addAttributes() {
+    return {
+      colspan: {
+        default: 1,
+      },
+      rowspan: {
+        default: 1,
+      },
+      colwidth: {
+        default: null,
+        parseHTML: (element) => {
+          const colwidth = element.getAttribute("colwidth");
+          const value = colwidth
+            ? colwidth.split(",").map((width) => parseInt(width, 10))
+            : null;
+
+          return value;
+        },
+      },
+      "data-type": {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-type"),
+        renderHTML: (attributes) => {
+          if (!attributes["data-type"]) {
+            return {};
+          }
+          return { "data-type": attributes["data-type"] };
+        },
+      },
+    };
+  },
+  addNodeView() {
+    return ({ HTMLAttributes, node, getPos, view }) => {
+      const dom = document.createElement("td");
+      dom.style.position = "relative";
+
+      for (const [attribute, value] of Object.entries(HTMLAttributes)) {
+        dom.setAttribute(attribute, value);
+      }
+
+      let contentDOM: HTMLElement | null = null;
+      let reactRoot: any = null;
+
+      if (node.attrs["data-type"] === "person") {
+        const talentContainer = document.createElement("div");
+        talentContainer.className = "talent-select-container";
+        dom.appendChild(talentContainer);
+
+        reactRoot = createRoot(talentContainer);
+
+        let currentTalent = "";
+        if (node.content.size > 0) {
+          const firstChild = node.content.firstChild;
+          if (firstChild && firstChild.textContent) {
+            currentTalent = firstChild.textContent.trim();
+          }
+        }
+
+        const inlineContent = {
+          type: "talentSelectNode",
+          props: {
+            talent: currentTalent,
+          },
+        };
+
+        const updateInlineContent = (newContent: any) => {
+          if (typeof getPos === "function") {
+            const pos = getPos();
+            if (pos !== undefined) {
+              const tr = view.state.tr;
+              const textNode = view.state.schema.text(newContent.props.talent);
+              const paragraphNode =
+                view.state.schema.nodes.tableParagraph.create({}, textNode);
+              tr.replaceWith(pos + 1, pos + node.nodeSize - 1, paragraphNode);
+              view.dispatch(tr);
+            }
+          }
+        };
+
+        reactRoot.render(
+          React.createElement(TalentSelect, {
+            inlineContent,
+            updateInlineContent,
+            contentRef: null,
+          })
+        );
+
+        contentDOM = null;
+      } else {
+        contentDOM = document.createElement("div");
+        contentDOM.className = "content-editable";
+        dom.appendChild(contentDOM);
+      }
+
+      return {
+        dom,
+        contentDOM,
+        ignoreMutation: (mutation) => {
+          if (node.attrs["data-type"] === "person") {
+            const target = mutation.target as HTMLElement;
+            return target.closest(".talent-select-container") !== null;
+          }
+          return false;
+        },
+
+        destroy: () => {
+          if (reactRoot) {
+            reactRoot.unmount();
+            reactRoot = null;
+          }
+        },
+      };
+    };
+  },
+});
+
 export const CallSheetTable = createBlockSpecFromStronglyTypedTiptapNode(
   CallSheetTableBlockContent,
   callSheetTablePropSchema,
@@ -349,20 +527,7 @@ export const CallSheetTable = createBlockSpecFromStronglyTypedTiptapNode(
     CallSheetTableExtension,
     TableParagraph,
     CallSheetTableHeader,
-    TableCell.extend({
-      content: "tableContent+",
-      parseHTML() {
-        return [
-          {
-            tag: "td",
-            // As `td` elements can contain multiple paragraphs, we need to merge their contents
-            // into a single one so that ProseMirror can parse everything correctly.
-            getContent: (node, schema) =>
-              parseTableContent(node as HTMLElement, schema),
-          },
-        ];
-      },
-    }),
+    CallSheetTableCell,
     CallSheetTableRow,
   ]
 );

@@ -37,6 +37,7 @@ import {
 import { CallSheetHeaderHeaderFormattingToolbar } from "../extensions/CallSheetTableExtension/CallSheetHeaderHeaderFormattingToolbar";
 import { getCallSheetDbDataModel } from "../extensions/CallSheetTableExtension/callSheetTableToDbDataModel";
 import { allExpanded, defaultStyles, JsonView } from "react-json-view-lite";
+import { slashInserttalentSelectNode } from "./TalentSelectNode/TalentSelectNode";
 
 const resolveUsers = async (userIds: string[]) => {
   return userIds.map((userId) => ({
@@ -190,7 +191,8 @@ export const BlockNoteEditor = memo(
               defaultItems.splice(
                 firstBasicBlockIndex,
                 0,
-                slashInsertBlockNoteLemonlightButton(editor)
+                slashInsertBlockNoteLemonlightButton(editor),
+                slashInserttalentSelectNode(editor)
               );
 
               if (config?.enableCallSheet) {
