@@ -6,19 +6,23 @@ export const gridNodeName = 'muiGridPro';
 
 export const GridNode = Node.create({
   name: gridNodeName,
-  
+
   // This node is a block-level element
   group: 'block',
-  
+
   // It can contain content (for the Description field)
-  content: 'inline*',
-  
-  // Make it draggable in the editor
-  draggable: true,
+  content: '',
 
-  atom:true,
+  // Set draggable to false to avoid focus issues in Safari/Firefox
+  draggable: false,
 
-  
+  // Treat as atomic block node
+  atom: true,
+
+  // Make it selectable
+  selectable: true,
+
+
   // Define how to parse the node from HTML
   parseHTML() {
     return [
@@ -27,7 +31,7 @@ export const GridNode = Node.create({
       },
     ];
   },
-  
+
   // Define how to render the node to HTML
   renderHTML({ HTMLAttributes }) {
     return [
@@ -36,7 +40,7 @@ export const GridNode = Node.create({
       0, // This is a placeholder for the content
     ];
   },
-  
+
   // Connect the node to the React component
   addNodeView() {
     return ReactNodeViewRenderer(GridComponent);
