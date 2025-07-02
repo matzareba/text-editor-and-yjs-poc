@@ -120,7 +120,12 @@ const useYValue = (
   return [value, setYjsValue] as const;
 };
 
-const useYRowsData = (yDoc: Y.Doc, tableId: string) => {
+type RowData = {
+  id: string;
+  date: string | undefined;
+};
+
+const useYRowsDataOld = (yDoc: Y.Doc, tableId: string) => {
   const yRows = useMemo(() => {
     return yDoc.getArray<Y.Map<any>>(tableId);
   }, [yDoc, tableId]);
@@ -194,6 +199,73 @@ const useYRowsData = (yDoc: Y.Doc, tableId: string) => {
   return { rows, addRow, removeRow, setValue, reorderRows };
 };
 
+const useYRowsData = (yDoc: Y.Doc, tableId: string) => {
+  const yRows = useMemo(() => {
+    return yDoc.getMap<RowData[]>(tableId);
+  }, [yDoc, tableId]);
+
+  const [rows, setRows] = useState<RowData[]>(yRows.get("value") ?? []);
+
+  useEffect(() => {
+    const handler = () => {
+      setRows(yRows.get("value") ?? []);
+    };
+    yRows.observe(handler);
+    return () => yRows.unobserve(handler);
+  }, [yRows]);
+
+  const addRow = useCallback(() => {
+    const value = yRows.get("value");
+    yRows.set("value", [
+      ...(value ?? []),
+      { id: `row-${Date.now()}`, date: undefined },
+    ]);
+  }, [yRows]);
+
+  const removeRow = useCallback(
+    (rowId: string) => {
+      const value = yRows.get("value");
+      yRows.set("value", [
+        ...(value?.filter((row) => row.id.toString() !== rowId) ?? []),
+      ]);
+    },
+    [yRows],
+  );
+
+  const setValue = useCallback(
+    (rowId: string, field: keyof RowData, value: string) => {
+      const data = yRows.get("value");
+      const row = data?.find((row) => row.id.toString() === rowId);
+      if (!row || !data) {
+        return;
+      }
+      row[field] = value;
+      yRows.set("value", [...data]);
+    },
+    [yRows],
+  );
+
+  const reorderRows = useCallback(
+    (change: { oldIndex: number; targetIndex: number }) => {
+      const { oldIndex, targetIndex } = change;
+
+      if (oldIndex === targetIndex) return;
+
+      const currentRows = yRows.get("value") ?? [];
+      const newRows = [...currentRows];
+
+      // Remove the item from oldIndex and insert it at targetIndex
+      const [movedItem] = newRows.splice(oldIndex, 1);
+      newRows.splice(targetIndex, 0, movedItem);
+
+      yRows.set("value", newRows);
+    },
+    [yRows],
+  );
+
+  return { rows, addRow, removeRow, setValue, reorderRows };
+};
+
 // Collaborative Cell Component using TipTap
 const CollabCell: React.FC<{
   yDoc: Y.Doc;
@@ -201,7 +273,7 @@ const CollabCell: React.FC<{
   rowId: string;
   field: string;
   shareUndoManager: UndoManager;
-}> = ({ yDoc, tableId, rowId, field, shareUndoManager }) => {
+}> = React.memo(({ yDoc, tableId, rowId, field, shareUndoManager }) => {
   const yFragment = useYXMLFragment(yDoc, tableId, rowId, field);
   const editor = useEditor({
     extensions: [
@@ -212,6 +284,9 @@ const CollabCell: React.FC<{
       Italic,
       Collaboration.configure({
         fragment: yFragment,
+        // yUndoOptions: {
+        //   undoManager: shareUndoManager,
+        // },
       }),
     ],
     content: "",
@@ -292,23 +367,23 @@ const CollabCell: React.FC<{
       />
     </div>
   );
-};
+});
 
-function DateCell({
-  value,
-  onChange,
-}: {
-  value: string | undefined;
-  onChange: (value: string) => unknown;
-}) {
-  return (
+const DateCell = React.memo(
+  ({
+    value,
+    onChange,
+  }: {
+    value: string | undefined;
+    onChange: (value: string) => unknown;
+  }) => (
     <input
       type="date"
       value={value ?? ""}
       onChange={(e) => onChange(e.target.value)}
     />
-  );
-}
+  ),
+);
 
 // Main DataGrid component
 const TipTapDataGridComponent: React.FC<{
@@ -320,7 +395,7 @@ const TipTapDataGridComponent: React.FC<{
   const { rows, addRow, setValue, reorderRows } = useYRowsData(yDoc, tableId);
 
   useEffect(() => {
-    sharedUndoManager.addToScope(yDoc.getArray(tableId));
+    // sharedUndoManager.addToScope(yDoc.getMap(tableId));
     // sharedUndoManager.addToScope(yDoc.getMap(`${tableId}-wysiwyg`));
   }, [sharedUndoManager, yDoc]);
 
@@ -330,7 +405,7 @@ const TipTapDataGridComponent: React.FC<{
       {
         field: "id",
         headerName: "id",
-        flex: 1,
+        width: 100,
         renderCell: (params) => {
           return <>{params.id}</>;
         },
@@ -338,7 +413,7 @@ const TipTapDataGridComponent: React.FC<{
       {
         field: "date",
         headerName: "date",
-        flex: 1,
+        width: 150,
         renderCell: (params) => (
           <DateCell
             onChange={(value) => setValue(params.id.toString(), "date", value)}
@@ -349,7 +424,7 @@ const TipTapDataGridComponent: React.FC<{
       {
         field: "description",
         headerName: "Description",
-        flex: 2,
+        width: 100,
         renderCell: (params) => (
           <CollabCell
             yDoc={yDoc}
@@ -363,7 +438,7 @@ const TipTapDataGridComponent: React.FC<{
       ...Array.from({ length: 20 }).map((_, index) => ({
         field: `notes-${index}`,
         headerName: `Rich Notes ${index + 1}`,
-        flex: 2,
+        width: 100,
         renderCell: (params: GridRenderCellParams) => {
           return (
             <CollabCell
@@ -396,6 +471,7 @@ const TipTapDataGridComponent: React.FC<{
         // disableRowSelectionOnClick
         rowReordering
         rowSelection
+        // disableVirtualization
         onRowOrderChange={(params) => {
           console.log("Row order changed:", params);
           reorderRows(params);
