@@ -8,6 +8,7 @@ import { Box, Button, Toolbar, Typography } from "@mui/material";
 import DataGridExtension from "./extensions/DataGridExtension";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
+import { ySyncPluginKey } from "y-prosemirror";
 
 // Define custom types
 type CustomElement = {
@@ -27,7 +28,7 @@ const CollaborativeEditor: React.FC = () => {
   // Set up Yjs provider and document
   useEffect(() => {
     const doc = new Y.Doc();
-    
+
     // Set up WebSocket provider
     const yProvider = new WebsocketProvider(
       "ws://localhost:1234",
@@ -48,8 +49,8 @@ const CollaborativeEditor: React.FC = () => {
 
     // Create shared undo manager for all editors
     const undoManager = new Y.UndoManager([], {
-      captureTimeout: 0,
-      trackedOrigins: new Set([null]),
+      trackedOrigins: new Set([null, ySyncPluginKey]),
+      captureTimeout: 400,
       doc,
     });
 
@@ -58,7 +59,7 @@ const CollaborativeEditor: React.FC = () => {
     }, 10000);
 
     setSharedUndoManager(undoManager);
-    
+
     return () => {
       doc?.destroy();
       yProvider?.destroy();
@@ -96,6 +97,16 @@ const TipTapEditor: React.FC<TipTapEditorProps> = ({
   provider,
   sharedUndoManager,
 }) => {
+  const xmlFragment = useMemo(() => yDoc.getXmlFragment("body"), [yDoc]);
+
+  useEffect(() => {
+    sharedUndoManager.addToScope(xmlFragment);
+
+    return () => {
+      // sharedUndoManager.scope
+    };
+  }, [sharedUndoManager, xmlFragment]);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -104,7 +115,7 @@ const TipTapEditor: React.FC<TipTapEditorProps> = ({
       Bold,
       Italic,
       Collaboration.configure({
-        fragment: yDoc.getXmlFragment("body"),
+        fragment: xmlFragment,
       }),
       DataGridExtension,
     ],
@@ -130,11 +141,7 @@ const TipTapEditor: React.FC<TipTapEditorProps> = ({
   const insertGrid = useCallback(() => {
     if (editor) {
       const tableId = `table-${Date.now()}`;
-      editor
-        .chain()
-        .focus()
-        .insertDataGrid({ tableId })
-        .run();
+      editor.chain().focus().insertDataGrid({ tableId }).run();
     }
   }, [editor]);
 
