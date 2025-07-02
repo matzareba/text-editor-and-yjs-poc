@@ -4,7 +4,6 @@ import {
   DefaultStyleSchema,
   InlineContentSchema,
   isTableCell,
-  mapTableCell,
   StyleSchema,
 } from "@blocknote/core";
 
@@ -15,6 +14,7 @@ import { ColorPicker } from "../../../TableHandles/ColorPicker/ColorPicker";
 import { TableCellMenuProps } from "../TableCellMenuProps";
 import { ReactNode } from "react";
 import { callSheetTableBlockType } from "../../../../consts";
+import { mapTableCell } from "../../../../../coreTableHelpers";
 
 export const ColorPickerButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,

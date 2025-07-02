@@ -10,8 +10,8 @@ import {
   getColspan,
   getRowspan,
   isPartialTableCell,
-  mapTableCell,
 } from "@blocknote/core";
+import { mapTableCell } from "../../coreTableHelpers";
 
 /**
  * Here be dragons.

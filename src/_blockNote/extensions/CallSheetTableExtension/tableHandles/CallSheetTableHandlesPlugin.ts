@@ -26,7 +26,6 @@ import {
   moveRow,
 } from "./tablesHelper";
 import {
-  nodeToBlock,
   isTableCellSelection,
   DefaultBlockSchema,
   BlockNoteExtension,
@@ -41,6 +40,7 @@ import {
 } from "@blocknote/core";
 import { getDraggableBlockFromElement } from "./getDraggableBlockFromElement";
 import { callSheetTableBlockType } from "../consts";
+import { nodeToBlock } from "../coreHelpers";
 
 let dragImageElement: HTMLElement | undefined;
 
