@@ -26,6 +26,7 @@ import { UndoManager } from "yjs";
 import { createRoot } from "react-dom/client";
 import { DataGridPro } from "@mui/x-data-grid-pro";
 import { DataGridPremium } from "@mui/x-data-grid-premium";
+import { ySyncPluginKey } from "y-prosemirror";
 
 // Grid data structures
 interface GridRowEntry {
@@ -202,7 +203,6 @@ const CollabCell: React.FC<{
   shareUndoManager: UndoManager;
 }> = ({ yDoc, tableId, rowId, field, shareUndoManager }) => {
   const yFragment = useYXMLFragment(yDoc, tableId, rowId, field);
-
   const editor = useEditor({
     extensions: [
       Document,
@@ -236,6 +236,8 @@ const CollabCell: React.FC<{
   // Handle keyboard shortcuts for undo/redo
   useEffect(() => {
     if (!editor) return;
+
+    shareUndoManager.addToScope(yFragment);
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.ctrlKey || event.metaKey) {
@@ -292,7 +294,6 @@ const CollabCell: React.FC<{
   );
 };
 
-
 function DateCell({
   value,
   onChange,
@@ -317,6 +318,11 @@ const TipTapDataGridComponent: React.FC<{
   sharedUndoManager: UndoManager;
 }> = ({ yDoc, tableId, element, sharedUndoManager }) => {
   const { rows, addRow, setValue, reorderRows } = useYRowsData(yDoc, tableId);
+
+  useEffect(() => {
+    sharedUndoManager.addToScope(yDoc.getArray(tableId));
+    // sharedUndoManager.addToScope(yDoc.getMap(`${tableId}-wysiwyg`));
+  }, [sharedUndoManager, yDoc]);
 
   // Define columns with collaborative editors
   const columns: GridColDef[] = useMemo(
