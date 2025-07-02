@@ -13,6 +13,7 @@ const navItems: NavItem[] = [
   { path: "/blocknote-owncf", label: "BlockNote on Own CloudFlare" },
   { path: "/tiptap-owncf", label: "Tiptap on Own CloudFlare" },
   { path: "/lexical-owncf", label: "Lexical on Own CloudFlare" },
+  { path: "/tiptap-custom", label: "TipTap Custom Table" },
 ];
 
 export const NavBar = () => {
