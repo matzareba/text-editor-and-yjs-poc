@@ -343,10 +343,10 @@ const CollabCell: React.FC<{
     };
 
     const editorElement = editor.view.dom;
-    editorElement.addEventListener("keydown", handleKeyDown);
+    // editorElement.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      editorElement.removeEventListener("keydown", handleKeyDown);
+      // editorElement.removeEventListener("keydown", handleKeyDown);
     };
   }, [editor, shareUndoManager]);
 
