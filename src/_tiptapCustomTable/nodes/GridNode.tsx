@@ -471,7 +471,7 @@ const TipTapDataGridComponent: React.FC<{
         // disableRowSelectionOnClick
         rowReordering
         rowSelection
-        // disableVirtualization
+        disableVirtualization
         onRowOrderChange={(params) => {
           console.log("Row order changed:", params);
           reorderRows(params);
