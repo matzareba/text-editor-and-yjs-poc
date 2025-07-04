@@ -3,7 +3,17 @@ import { defineConfig } from "vite";
 
 export default defineConfig(() => ({
   plugins: [react()],
-  optimizeDeps: {},
+  optimizeDeps: {
+    esbuildOptions: {
+      // Node.js global to browser globalThis
+      define: {
+        global: 'globalThis',
+      },
+    },
+  },
+  define: {
+    global: 'window',
+  },
   build: {
     sourcemap: true,
   },
