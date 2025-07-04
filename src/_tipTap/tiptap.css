@@ -61,4 +61,28 @@
         cursor: col-resize;
     }
 }
-Nodes/Table/React
+
+.draggable-column-header {
+    cursor: grab;
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.drag-overlay {
+    position: absolute;
+    pointer-events: none;
+    z-index: 99;
+    border: 2px solid rgba(11, 96, 216, 0.9); /* mavi border */
+    box-shadow: 0 0 10px 4px rgba(11, 96, 216, 0.6); /* mavi glow */
+    border-radius: 2px;
+    animation: glow-fade 1s ease-in-out infinite;
+}
+
+#drop-target-overlay {
+    position: absolute;
+    pointer-events: none;
+    z-index: 999;
+    border: 2px solid rgba(11, 96, 216, 0.9); /* mavi border */
+    box-shadow: 0 0 10px 4px rgba(11, 96, 216, 0.6); /* mavi glow */
+    border-radius: 2px;
+    animation: glow-fade 1s ease-in-out infinite;
+}
