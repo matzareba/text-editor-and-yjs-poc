@@ -62,7 +62,7 @@ const CustomWrapperWithContextComponent: React.FC<ReactNodeViewProps> = () => {
 
 export const CustomTable = Table.extend({
   name: "customTable",
-  content: "customRow*",
+  // content: "customRow*",
 
   addAttributes() {
     return {
@@ -131,26 +131,13 @@ export const CustomTable = Table.extend({
 });
 
 export const CustomTableRow = TableRow.extend({
-  name: "customRow",
-  content: "textCell textCell dateCell",
-  // draggable: true,
-  selectable: true,
-  // renderHTML({ HTMLAttributes }) {
-  //   return ["tr", mergeAttributes(HTMLAttributes), ["td", { class: ".cell_handle" }], 0];
-  // },
-  // parseHTML() {
-  //   return [
-  //     {
-  //       tag: "tr"
-  //     }
-  //   ];
-  // }
+  content: "dateCell textCell dateCell",
 });
 
 export const CustomDateCell = TableCell.extend({
   name: "dateCell",
   group: "customCell",
-  content: "dateNode",
+  content: "block*",
   parseHTML() {
     return [
       {
@@ -172,7 +159,6 @@ export const CustomDateCell = TableCell.extend({
 export const CustomTextCell = TableCell.extend({
   name: "textCell",
   group: "customCell",
-  content: "inline*",
   parseHTML() {
     return [
       {
@@ -214,8 +200,9 @@ export const CustomHandleCell = TableCell.extend({
 
 export const DateNode = Node.create({
   name: "dateNode",
-  inline: true,
-  topNode: true,
+  group: "block",
+  // inline: true,
+  // topNode: true,
   isolating: true,
   atom: true,
   // selectable: false,
