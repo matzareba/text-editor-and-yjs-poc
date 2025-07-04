@@ -36,16 +36,16 @@ export const TipTapEditor = () => {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        history: false,
+        // history: false,
       }),
-      Collaboration.configure({
-        document: provider.doc,
-        field: "content",
-      }),
-      CollaborationCursor.configure({
-        provider: provider,
-        user: MY_USER,
-      }),
+      // Collaboration.configure({
+      //   document: provider.doc,
+      //   field: "content",
+      // }),
+      // CollaborationCursor.configure({
+      //   provider: provider,
+      //   user: MY_USER,
+      // }),
       TipTapLemonlightButton,
       TipTapSlashCommands,
       // Table.configure({
@@ -64,8 +64,8 @@ export const TipTapEditor = () => {
       CustomTextCell,
       CustomDateCell,
       CustomWrapperWithContext,
-      CustomHandleCell,
-      HandleNode,
+      // CustomHandleCell,
+      // HandleNode,
       TableDragManager,
     ],
   });
