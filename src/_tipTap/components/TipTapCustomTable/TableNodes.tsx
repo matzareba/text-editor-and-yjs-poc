@@ -131,7 +131,7 @@ export const CustomTable = Table.extend({
 
 export const CustomTableRow = TableRow.extend({
   name: "customRow",
-  content: "handleCell textCell dateCell customCell*",
+  content: "handleCell textCell dateCell",
   // draggable: true,
   selectable: true,
   // renderHTML({ HTMLAttributes }) {
