@@ -198,6 +198,7 @@ export const CustomHandleCell = TableCell.extend({
 
 export const DateNode = Node.create({
   name: "dateNode",
+  group: 'inline',
   inline: true,
   // atom: true,
   // selectable: true,
