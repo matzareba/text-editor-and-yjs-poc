@@ -28,6 +28,7 @@ import { useState } from "react";
 import DragHandleExtension from '@tiptap/extension-drag-handle'
 import { DragHandle } from "@tiptap/extension-drag-handle";
 import DragHandleComponent from "@tiptap/extension-drag-handle-react"
+import { TableDragManager } from "./TipTapCustomTable/TableDragManager";
 
 const TipTapToolbar = ({ editor }: { editor: any }) => {
   const insertLemonlightButton = () => {
@@ -53,7 +54,7 @@ const TipTapToolbar = ({ editor }: { editor: any }) => {
           content: [
             {
               type: CustomTable.name,
-              content: Array.from({ length: 10 }).map(() => ({
+              content: Array.from({ length: 10 }).map((_, i) => ({
                 type: CustomTableRow.name,
                 content: [
                   {
@@ -69,7 +70,7 @@ const TipTapToolbar = ({ editor }: { editor: any }) => {
                     content: [
                       {
                         type: "text",
-                        text: "New Table",
+                        text: `Value ${i + 1}`,
                       },
                     ],
                   },
@@ -90,6 +91,12 @@ const TipTapToolbar = ({ editor }: { editor: any }) => {
           ],
         })
         .run();
+    }
+  };
+
+  const clearEditor = () => {
+    if (editor) {
+      editor.chain().focus().clearContent().run();
     }
   };
 
@@ -140,6 +147,23 @@ const TipTapToolbar = ({ editor }: { editor: any }) => {
       >
         Grid
       </button>
+      <button
+        onClick={clearEditor}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.25rem",
+          padding: "0.25rem 0.5rem",
+          border: "1px solid #dee2e6",
+          borderRadius: "4px",
+          backgroundColor: "white",
+          cursor: "pointer",
+          fontSize: "0.875rem",
+        }}
+        title="Clear Editor"
+      >
+        Clear
+      </button>
     </div>
   );
 };
@@ -168,28 +192,18 @@ export const TipTapEditor = () => {
       // TableCell,
       // TableHeader,
       DateNode,
-      CustomTable,
+      CustomTable.configure({
+        resizable: true,
+        lastColumnResizable: false,
+        allowTableNodeSelection: true,
+      }),
       CustomTableRow,
       CustomTextCell,
       CustomDateCell,
       CustomWrapperWithContext,
       CustomHandleCell,
       HandleNode,
-      DragHandle.configure({
-        render: () => {
-          const element = document.createElement('div')
-          element.style.backgroundColor = 'red';
-          element.style.width = '30px';
-          element.style.height = '30px';
-          element.style.cursor = 'grab';
-
-          // Use as a hook for CSS to insert an icon
-          element.classList.add('custom-drag-handle')
-
-          return element
-        },
-      })
-
+      TableDragManager,
     ],
   });
 

@@ -92,47 +92,47 @@ export const CustomTable = Table.extend({
       },
     };
   },
-  addNodeView() {
-    return (props) => {
-      console.log(props);
-      // const dom = document.createElement("div");
-
-      const table = document.createElement("table");
-      table.setAttribute("contenteditable", "false");
-      table.classList.add("node-view");
-
-      const tbody = document.createElement("tbody");
-      tbody.classList.add("content");
-      // tbody.classList.add("is-editable");
-      table.appendChild(tbody);
-
-      // new Sortable(tbody, {
-      //   draggable: "tr", // the elements within the container to drag
-      //   // You can add handles, e.g. `handle: '.handle'`, and event listeners as needed
-      //   handle: "cell_handle",
-      // });
-
-      // const dragDrop = createTableRowDragDrop(table, {
-      //   onDrag: (fromIndex, toIndex) => {
-      //     console.log(`Row moved from ${fromIndex} to ${toIndex}`);
-      //     // Handle your data reordering here
-      //   }
-      // });
-
-      // ta.appendChild(table);
-
-      return {
-        dom: table,
-        contentDOM: tbody,
-      };
-    };
-  },
+  // addNodeView() {
+  //   return (props) => {
+  //     console.log(props);
+  //     // const dom = document.createElement("div");
+  //
+  //     const table = document.createElement("table");
+  //     table.setAttribute("contenteditable", "false");
+  //     table.classList.add("node-view");
+  //
+  //     const tbody = document.createElement("tbody");
+  //     tbody.classList.add("content");
+  //     // tbody.classList.add("is-editable");
+  //     table.appendChild(tbody);
+  //
+  //     // new Sortable(tbody, {
+  //     //   draggable: "tr", // the elements within the container to drag
+  //     //   // You can add handles, e.g. `handle: '.handle'`, and event listeners as needed
+  //     //   handle: "cell_handle",
+  //     // });
+  //
+  //     // const dragDrop = createTableRowDragDrop(table, {
+  //     //   onDrag: (fromIndex, toIndex) => {
+  //     //     console.log(`Row moved from ${fromIndex} to ${toIndex}`);
+  //     //     // Handle your data reordering here
+  //     //   }
+  //     // });
+  //
+  //     // ta.appendChild(table);
+  //
+  //     return {
+  //       dom: table,
+  //       contentDOM: tbody,
+  //     };
+  //   };
+  // },
 });
 
 export const CustomTableRow = TableRow.extend({
   name: "customRow",
   content: "handleCell textCell dateCell customCell*",
-  draggable: true,
+  // draggable: true,
   selectable: true,
   // renderHTML({ HTMLAttributes }) {
   //   return ["tr", mergeAttributes(HTMLAttributes), ["td", { class: ".cell_handle" }], 0];
@@ -162,6 +162,7 @@ export const CustomHandleCell = TableCell.extend({
   name: "handleCell",
   group: "customCell",
   content: "handleNode",
+  draggable: false,
 });
 
 export const DateNode = Node.create({
@@ -179,7 +180,7 @@ export const DateNode = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ["date-node", mergeAttributes(HTMLAttributes), 0];
+    return ["date-node", mergeAttributes(HTMLAttributes)];
   },
 
   addAttributes() {
@@ -199,7 +200,7 @@ const DateCellComponent: ComponentType<ReactNodeViewProps<HTMLElement>> = (
   props,
 ) => {
   const { counter } = useContext(CounterContext);
-  console.log("counter", counter);
+  // console.log("counter", counter);
   return (
     <NodeViewWrapper className="date-cell">
       <input
@@ -214,6 +215,7 @@ const DateCellComponent: ComponentType<ReactNodeViewProps<HTMLElement>> = (
 export const HandleNode = Node.create({
   name: "handleNode",
   atom: true,
+  draggable: false,
 
   parseHTML() {
     return [
@@ -224,23 +226,21 @@ export const HandleNode = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ["handle-node", mergeAttributes(HTMLAttributes), 0];
+    return ["handle-node", mergeAttributes(HTMLAttributes)];
   },
 
   addNodeView() {
     return () => {
       const element = document.createElement("span");
-      element.classList.add("cell_handle", "node-view");
+      element.classList.add("draggable-table-row", "node-view");
       element.setAttribute("contenteditable", "false");
       element.appendChild(document.createTextNode("X"));
       element.style.backgroundColor = "red";
       element.style.width = "30px";
       element.style.height = "30px";
       element.style.cursor = "grab";
-      const stopPropagation = (e: { stopPropagation: () => void }) => {
-        e.stopPropagation();
-      };
-      element.addEventListener("mousedown", stopPropagation);
+      element.draggable = false;
+      // element.addEventListener("dragstart", stopPropagation);
       // element.addEventListener("click", stopPropagation);
       return {
         dom: element,
