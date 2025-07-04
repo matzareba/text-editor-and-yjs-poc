@@ -48,22 +48,26 @@ export const TipTapEditor = () => {
       // }),
       TipTapLemonlightButton,
       TipTapSlashCommands,
+
       // Table.configure({
-      //   resizable: true,
+      //   resizable: false,
       // }),
       // TableRow,
       // TableCell,
       // TableHeader,
+      //
       DateNode,
+
       CustomTable.configure({
         resizable: true,
         lastColumnResizable: false,
         allowTableNodeSelection: true,
       }),
       CustomTableRow,
-      CustomTextCell,
       CustomDateCell,
+      CustomTextCell,
       CustomWrapperWithContext,
+
       // CustomHandleCell,
       // HandleNode,
       TableDragManager,

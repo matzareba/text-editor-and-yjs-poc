@@ -13,6 +13,9 @@ import {
   HandleNode,
 } from "./TipTapCustomTable/TableNodes";
 import { Editor } from "@tiptap/react";
+import Table from "@tiptap/extension-table";
+import TableRow from "@tiptap/extension-table-row";
+import TableCell from "@tiptap/extension-table-cell";
 
 const newTableWithDate = {
   type: CustomWrapperWithContext.name,
@@ -30,12 +33,46 @@ const newTableWithDate = {
           //     },
           //   ],
           // },
+          // {
+          //   type: CustomTextCell.name,
+          //   content: [
+          //     {
+          //       type: "text",
+          //       text: `Column 1 - ${i + 1}`
+          //     }
+          //   ]
+          // },
+          // {
+          //   type: CustomTextCell.name,
+          //   content: [
+          //     {
+          //       type: "text",
+          //       text: `Column 2 - ${i + 1}`
+          //     }
+          //   ]
+          // },
+          // {
+          //   type: CustomDateCell.name,
+          //   content: [
+          //     {
+          //       type: DateNode.name,
+          //       attrs: {
+          //         value: "2024-01-01"
+          //       }
+          //     }
+          //   ]
+          // },
           {
-            type: CustomTextCell.name,
+            type: CustomDateCell.name,
             content: [
               {
-                type: "text",
-                text: `Column 1 - ${i + 1}`,
+                type: "paragraph",
+                content: [
+                  {
+                    type: "text",
+                    text: `custom date 2025`,
+                  },
+                ],
               },
             ],
           },
@@ -43,8 +80,13 @@ const newTableWithDate = {
             type: CustomTextCell.name,
             content: [
               {
-                type: "text",
-                text: `Column 2 - ${i + 1}`,
+                type: "paragraph",
+                content: [
+                  {
+                    type: "text",
+                    text: `Column 2 - ${i + 1}`,
+                  },
+                ],
               },
             ],
           },
@@ -52,10 +94,13 @@ const newTableWithDate = {
             type: CustomDateCell.name,
             content: [
               {
-                type: DateNode.name,
-                attrs: {
-                  value: "2024-01-01",
-                },
+                type: "paragraph",
+                content: [
+                  {
+                    type: "text",
+                    text: `custom date 2025`,
+                  },
+                ],
               },
             ],
           },
@@ -63,6 +108,40 @@ const newTableWithDate = {
       })),
     },
   ],
+};
+
+const newTiptapTableWithDate = {
+  type: Table.name,
+  content: Array.from({ length: 10 }).map((_, i) => ({
+    type: TableRow.name,
+    content: [
+      {
+        type: TableCell.name,
+        content: [
+          {
+            type: "paragraph",
+            content: [
+              {
+                type: "text",
+                text: `Column 1 - ${i + 1}`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: TableCell.name,
+        content: [
+          {
+            type: DateNode.name,
+            attrs: {
+              value: "2024-01-01",
+            },
+          },
+        ],
+      },
+    ],
+  })),
 };
 
 const newTableWithThreeTextCells = {
@@ -126,6 +205,17 @@ export const TipTapToolbar = ({ editor }: { editor: Editor }) => {
         .focus()
         // .insertTable({ rows: 3, cols: 3, withHeaderRow: false })
         .insertContent(newTableWithDate)
+        .run();
+    }
+  };
+
+  const insertTiptapTable = () => {
+    if (editor) {
+      editor
+        .chain()
+        .focus()
+        // .insertTable({ rows: 3, cols: 3, withHeaderRow: false })
+        .insertContent(newTiptapTableWithDate)
         .run();
     }
   };
@@ -243,6 +333,23 @@ export const TipTapToolbar = ({ editor }: { editor: Editor }) => {
         title="Insert Table with Three Text Columns"
       >
         Text Table
+      </button>
+      <button
+        onClick={insertTiptapTable}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.25rem",
+          padding: "0.25rem 0.5rem",
+          border: "1px solid #dee2e6",
+          borderRadius: "4px",
+          backgroundColor: "white",
+          cursor: "pointer",
+          fontSize: "0.875rem",
+        }}
+        title="Insert Table with Three Text Columns"
+      >
+        Tiptap Table
       </button>
       <button
         onClick={clearEditor}
