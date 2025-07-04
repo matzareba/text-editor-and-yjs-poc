@@ -20,6 +20,7 @@ import {
   CounterContext as CounterContext1,
 } from "./CounterContext";
 import { Sortable } from "@shopify/draggable";
+import { Attrs } from "prosemirror-model";
 
 export const CustomWrapperWithContext = Node.create({
   name: "customWrapperWithContext",
@@ -131,7 +132,7 @@ export const CustomTable = Table.extend({
 
 export const CustomTableRow = TableRow.extend({
   name: "customRow",
-  content: "handleCell textCell dateCell",
+  content: "handleCell textCell textCell dateCell",
   // draggable: true,
   selectable: true,
   // renderHTML({ HTMLAttributes }) {
@@ -150,12 +151,32 @@ export const CustomDateCell = TableCell.extend({
   name: "dateCell",
   group: "customCell",
   content: "dateNode",
+  parseHTML() {
+    return [
+      {
+        tag: 'td[data-type="draggable-item"]',
+      },
+    ];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ["td", mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, { 'data-type': 'date-cell' }), 0];
+  },
 });
 
 export const CustomTextCell = TableCell.extend({
   name: "textCell",
   group: "customCell",
   content: "inline*",
+  parseHTML() {
+    return [
+      {
+        tag: 'td[data-type="text-cell"]',
+      },
+    ];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ["td", mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, { 'data-type': 'text-cell' }), 0];
+  },
 });
 
 export const CustomHandleCell = TableCell.extend({
@@ -163,18 +184,37 @@ export const CustomHandleCell = TableCell.extend({
   group: "customCell",
   content: "handleNode",
   draggable: false,
+  parseHTML() {
+    return [
+      {
+        tag: 'td[data-type="handle-cell"]',
+      },
+    ];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ["td", mergeAttributes(this.options.HTMLAttributes, HTMLAttributes,  { 'data-type': 'handle-cell' }), 0];
+  },
 });
 
 export const DateNode = Node.create({
   name: "dateNode",
-  atom: true,
-  // selectable: false,
+  group: 'inline',
+  inline: true,
+  // atom: true,
+  // selectable: true,
   // draggable: true,
 
   parseHTML() {
     return [
       {
         tag: "date-node",
+        getAttrs: (dom: HTMLElement): Attrs => {
+          const value = dom.getAttribute("value");
+
+          return {
+            value,
+          };
+        },
       },
     ];
   },
@@ -214,6 +254,9 @@ const DateCellComponent: ComponentType<ReactNodeViewProps<HTMLElement>> = (
 
 export const HandleNode = Node.create({
   name: "handleNode",
+  group: "inline",
+  inline: true,
+  selectable: true,
   atom: true,
   draggable: false,
 

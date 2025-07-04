@@ -35,7 +35,16 @@ const newTableWithDate = {
             content: [
               {
                 type: "text",
-                text: `Value ${i + 1}`,
+                text: `Column 1 - ${i + 1}`,
+              },
+            ],
+          },
+          {
+            type: CustomTextCell.name,
+            content: [
+              {
+                type: "text",
+                text: `Column 2 - ${i + 1}`,
               },
             ],
           },
@@ -56,6 +65,46 @@ const newTableWithDate = {
   ],
 };
 
+const newTableWithThreeTextCells = {
+  type: CustomWrapperWithContext.name,
+  content: [
+    {
+      type: CustomTable.name,
+      content: Array.from({ length: 10 }).map((_, i) => ({
+        type: CustomTableRow.name,
+        content: [
+          {
+            type: CustomTextCell.name,
+            content: [
+              {
+                type: "text",
+                text: `Column 1 - ${i + 1}`,
+              },
+            ],
+          },
+          {
+            type: CustomTextCell.name,
+            content: [
+              {
+                type: "text",
+                text: `Column 2 - ${i + 1}`,
+              },
+            ],
+          },
+          {
+            type: CustomTextCell.name,
+            content: [
+              {
+                type: "text",
+                text: `Column 3 - ${i + 1}`,
+              },
+            ],
+          },
+        ],
+      })),
+    },
+  ],
+};
 
 export const TipTapToolbar = ({ editor }: { editor: Editor }) => {
   const insertLemonlightButton = () => {
@@ -78,6 +127,12 @@ export const TipTapToolbar = ({ editor }: { editor: Editor }) => {
         // .insertTable({ rows: 3, cols: 3, withHeaderRow: false })
         .insertContent(newTableWithDate)
         .run();
+    }
+  };
+
+  const insertThreeTextCellsTable = () => {
+    if (editor) {
+      editor.chain().focus().insertContent(newTableWithThreeTextCells).run();
     }
   };
 
@@ -171,6 +226,23 @@ export const TipTapToolbar = ({ editor }: { editor: Editor }) => {
         title="Insert MUI X Grid Pro"
       >
         Grid
+      </button>
+      <button
+        onClick={insertThreeTextCellsTable}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.25rem",
+          padding: "0.25rem 0.5rem",
+          border: "1px solid #dee2e6",
+          borderRadius: "4px",
+          backgroundColor: "white",
+          cursor: "pointer",
+          fontSize: "0.875rem",
+        }}
+        title="Insert Table with Three Text Columns"
+      >
+        Text Table
       </button>
       <button
         onClick={clearEditor}
