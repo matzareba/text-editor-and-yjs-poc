@@ -22,14 +22,14 @@ const newTableWithDate = {
       content: Array.from({ length: 10 }).map((_, i) => ({
         type: CustomTableRow.name,
         content: [
-          {
-            type: CustomHandleCell.name,
-            content: [
-              {
-                type: HandleNode.name,
-              },
-            ],
-          },
+          // {
+          //   type: CustomHandleCell.name,
+          //   content: [
+          //     {
+          //       type: HandleNode.name,
+          //     },
+          //   ],
+          // },
           {
             type: CustomTextCell.name,
             content: [

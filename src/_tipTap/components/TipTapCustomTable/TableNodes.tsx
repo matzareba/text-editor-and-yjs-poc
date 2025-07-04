@@ -132,7 +132,7 @@ export const CustomTable = Table.extend({
 
 export const CustomTableRow = TableRow.extend({
   name: "customRow",
-  content: "handleCell textCell textCell dateCell",
+  content: "textCell textCell dateCell",
   // draggable: true,
   selectable: true,
   // renderHTML({ HTMLAttributes }) {
@@ -154,12 +154,18 @@ export const CustomDateCell = TableCell.extend({
   parseHTML() {
     return [
       {
-        tag: 'td[data-type="draggable-item"]',
+        tag: 'td[data-type="date-cell"]',
       },
     ];
   },
   renderHTML({ HTMLAttributes }) {
-    return ["td", mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, { 'data-type': 'date-cell' }), 0];
+    return [
+      "td",
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
+        "data-type": "date-cell",
+      }),
+      0,
+    ];
   },
 });
 
@@ -175,7 +181,13 @@ export const CustomTextCell = TableCell.extend({
     ];
   },
   renderHTML({ HTMLAttributes }) {
-    return ["td", mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, { 'data-type': 'text-cell' }), 0];
+    return [
+      "td",
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
+        "data-type": "text-cell",
+      }),
+      0,
+    ];
   },
 });
 
@@ -192,16 +204,21 @@ export const CustomHandleCell = TableCell.extend({
     ];
   },
   renderHTML({ HTMLAttributes }) {
-    return ["td", mergeAttributes(this.options.HTMLAttributes, HTMLAttributes,  { 'data-type': 'handle-cell' }), 0];
+    return [
+      "td",
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
+      { "data-type": "handle-cell" },
+    ];
   },
 });
 
 export const DateNode = Node.create({
   name: "dateNode",
-  group: 'inline',
   inline: true,
-  // atom: true,
-  // selectable: true,
+  topNode: true,
+  isolating: true,
+  atom: true,
+  // selectable: false,
   // draggable: true,
 
   parseHTML() {
@@ -219,8 +236,8 @@ export const DateNode = Node.create({
     ];
   },
 
-  renderHTML({ HTMLAttributes }) {
-    return ["date-node", mergeAttributes(HTMLAttributes)];
+  renderHTML({node, HTMLAttributes }) {
+    return ["date-node", mergeAttributes(HTMLAttributes, { value:  node.attrs.value })];
   },
 
   addAttributes() {
@@ -255,7 +272,6 @@ const DateCellComponent: ComponentType<ReactNodeViewProps<HTMLElement>> = (
 export const HandleNode = Node.create({
   name: "handleNode",
   group: "inline",
-  inline: true,
   selectable: true,
   atom: true,
   draggable: false,
