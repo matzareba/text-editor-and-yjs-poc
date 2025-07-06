@@ -9,6 +9,7 @@ import { gapCursor } from "prosemirror-gapcursor";
 import { goToNextCell, tableEditing } from "prosemirror-tables";
 import { ProseMirrorToolbar } from "./ProseMirrorToolbar";
 import { createCustomSchema } from "./schema/customSchema";
+import { rowNumberPlugin } from "./plugins/rowNumberPlugin";
 
 // Import CSS
 import "../prosemirror.css";
@@ -40,6 +41,7 @@ export const ProseMirrorEditor = () => {
         // Table plugins
         // columnResizing(),
         tableEditing(),
+        rowNumberPlugin,
 
         // Custom plugins
         // createSlashCommands(customSchema),

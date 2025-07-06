@@ -92,3 +92,17 @@
   background: transparent;
   outline: none;
 }
+
+/* Row number cell styling */
+.row-number-cell {
+  background: #f0f0f0 !important; /* light gray background */
+  text-align: center !important; /* center the number */
+  user-select: none; /* prevent text selection on numbers */
+  pointer-events: none; /* ignore mouse events (click through) */
+  font-weight: bold;
+  color: #6c757d; /* muted text color */
+  width: 40px; /* fixed width for consistency */
+  min-width: 40px;
+  max-width: 40px;
+  font-size: 0.875rem; /* slightly smaller font */
+}
