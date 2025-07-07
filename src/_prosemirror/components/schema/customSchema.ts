@@ -65,7 +65,7 @@ export function createCustomSchema(): Schema {
     parseDOM: [
       {
         tag: "td[data-type='text-cell']",
-        getAttrs: (dom) => getCellAttrs(dom, { "data-type": "date-cell" }),
+        getAttrs: (dom) => getCellAttrs(dom, { "data-type": "text-cell" }),
       },
     ],
   };
@@ -78,7 +78,7 @@ export function createCustomSchema(): Schema {
     parseDOM: [
       {
         tag: "td[data-type='date-cell']",
-        getAttrs: (dom) => getCellAttrs(dom, {}),
+        getAttrs: (dom) => getCellAttrs(dom, { "data-type": "date-cell" }),
       },
     ],
   };

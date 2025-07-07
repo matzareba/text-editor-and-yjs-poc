@@ -51,31 +51,31 @@ const newTableWithDate = {
           //     }
           //   ]
           // },
-          // {
-          //   type: CustomDateCell.name,
-          //   content: [
-          //     {
-          //       type: DateNode.name,
-          //       attrs: {
-          //         value: "2024-01-01"
-          //       }
-          //     }
-          //   ]
-          // },
           {
             type: CustomDateCell.name,
             content: [
               {
-                type: "paragraph",
-                content: [
-                  {
-                    type: "text",
-                    text: `custom date 2025`,
-                  },
-                ],
+                type: DateNode.name,
+                attrs: {
+                  value: "2024-01-01",
+                },
               },
             ],
           },
+          // {
+          //   type: CustomDateCell.name,
+          //   content: [
+          //     {
+          //       type: "paragraph",
+          //       content: [
+          //         {
+          //           type: "text",
+          //           text: `custom date 2025`,
+          //         },
+          //       ],
+          //     },
+          //   ],
+          // },
           {
             type: CustomTextCell.name,
             content: [
@@ -94,13 +94,10 @@ const newTableWithDate = {
             type: CustomDateCell.name,
             content: [
               {
-                type: "paragraph",
-                content: [
-                  {
-                    type: "text",
-                    text: `custom date 2025`,
-                  },
-                ],
+                type: DateNode.name,
+                attrs: {
+                  value: "2024-01-01",
+                },
               },
             ],
           },

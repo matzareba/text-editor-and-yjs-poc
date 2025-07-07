@@ -67,7 +67,7 @@ export const TableDragManager = Extension.create({
                     )
                   }
 
-                  if (child.type.name === 'customRow') {
+                  if (child.type.name === 'tableRow') {
                     decorations.push(
                       Decoration.node(absPos, absPos + child.nodeSize, {
                         draggable: 'true',
@@ -226,7 +226,7 @@ export const TableDragManager = Extension.create({
                     if (currentId !== tableId) return
 
                     node.descendants((rowNode, rowPos) => {
-                      if (rowNode.type.name === 'customRow') {
+                      if (rowNode.type.name === 'tableRow') {
                         const cells: ProseMirrorNode[] = []
                         for (let i = 0; i < rowNode.childCount; i++) {
                           cells.push(rowNode.child(i))
@@ -271,7 +271,7 @@ export const TableDragManager = Extension.create({
 
                     const rows: ProseMirrorNode[] = []
                     node.forEach((rowNode) => {
-                      if (rowNode.type.name === 'customRow') {
+                      if (rowNode.type.name === 'tableRow') {
                         rows.push(rowNode)
                       }
                     })

@@ -29,6 +29,7 @@ import DragHandleExtension from '@tiptap/extension-drag-handle'
 import { DragHandle } from "@tiptap/extension-drag-handle";
 import DragHandleComponent from "@tiptap/extension-drag-handle-react"
 import { TableDragManager } from "./TipTapCustomTable/TableDragManager";
+import { RowHandlePlugin } from "./TipTapCustomTable/RowHandlePlugin";
 import { TipTapToolbar } from "./TipTapToolbar";
 
 export const TipTapEditor = () => {
@@ -70,6 +71,7 @@ export const TipTapEditor = () => {
 
       // CustomHandleCell,
       // HandleNode,
+      RowHandlePlugin,
       TableDragManager,
     ],
   });

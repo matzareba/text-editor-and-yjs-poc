@@ -137,7 +137,7 @@ export const CustomTableRow = TableRow.extend({
 export const CustomDateCell = TableCell.extend({
   name: "dateCell",
   group: "customCell",
-  content: "block*",
+  content: "dateNode",
   parseHTML() {
     return [
       {
