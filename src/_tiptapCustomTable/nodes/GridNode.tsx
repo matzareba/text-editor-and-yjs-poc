@@ -27,6 +27,8 @@ import { createRoot } from "react-dom/client";
 import { DataGridPro } from "@mui/x-data-grid-pro";
 import { DataGridPremium } from "@mui/x-data-grid-premium";
 import { ySyncPluginKey } from "y-prosemirror";
+import { sharedHistoryExtension } from "../extensions/SharedHistoryExtension";
+import { rowManagerOrigin } from "./consts";
 
 // Grid data structures
 interface GridRowEntry {
@@ -51,20 +53,22 @@ const useYXMLFragment = (
   field: string,
 ) => {
   return useMemo(() => {
-    // Get or create the table map: {tableId-wysiwyg: {rowId: {field: XML}}}
-    let tableMap = yDoc.getMap<Y.Map<Y.XmlFragment>>(`${tableId}-wysiwyg`);
+    const tableArray = yDoc.getArray<Y.Map<any>>(tableId);
 
-    // Get or create the row map
-    let rowMap = tableMap.get(rowId);
+    let rowMap = tableArray.toArray().find((row) => row.get("id") === rowId);
+
     if (!rowMap) {
-      rowMap = new Y.Map<Y.XmlFragment>();
-      tableMap.set(rowId, rowMap);
+      rowMap = new Y.Map<any>();
+      rowMap.set("id", rowId);
+      tableArray.push([rowMap]);
     }
 
     // Get or create the field XML fragment
     let xmlFragment = rowMap.get(field);
-    if (!xmlFragment) {
+    if (!xmlFragment || !(xmlFragment instanceof Y.XmlFragment)) {
       xmlFragment = new Y.XmlFragment();
+      const paragraph = new Y.XmlElement("paragraph");
+      xmlFragment.insert(0, [paragraph]);
       rowMap.set(field, xmlFragment);
     }
 
@@ -72,72 +76,26 @@ const useYXMLFragment = (
   }, [yDoc, tableId, rowId, field]);
 };
 
-const useYValue = (
-  yDoc: Y.Doc,
-  tableId: string,
-  rowId: string,
-  field: string,
-) => {
-  const yValue = useMemo(() => {
-    // Get or create the table map
-    let tableArray = yDoc.getArray<Y.Map<any>>(tableId);
-    const result = tableArray
-      .toArray()
-      .find((item) => item.get("id")?.toString() === rowId);
-
-    if (result) {
-      const result2: Y.Map<{ value: any }> | undefined = result.get(field);
-      if (!result2) {
-        const yText = new Y.Map<{ value: any }>();
-        result.set(field, yText);
-        return result.get(field) as Y.Map<{ value: any }>;
-      }
-      return result2;
-    } else {
-      const newValue = new Y.Map<{ value: any }>([["value", null]]);
-
-      const newRow = new Y.Map();
-      newRow.set("id", rowId);
-      newRow.set(field, newValue);
-      tableArray.push([newRow]);
-      return newValue;
-    }
-  }, [yDoc, tableId, rowId, field]);
-  const [value, setValue] = useState(
-    () => yValue.get("value") as string | undefined,
-  );
-
-  useEffect(() => {
-    const handler = () => {
-      setValue(yValue.get("value") as string | undefined);
-    };
-    yValue.observe(handler);
-    return () => yValue.unobserve(handler);
-  }, [yValue]);
-  const setYjsValue = useCallback((value: string) => {
-    yValue.set("value", value as any);
-  }, []);
-  return [value, setYjsValue] as const;
-};
-
 type RowData = {
   id: string;
   date: string | undefined;
 };
 
-const useYRowsDataOld = (yDoc: Y.Doc, tableId: string) => {
+const useYRowsData = (yDoc: Y.Doc, tableId: string) => {
   const yRows = useMemo(() => {
     return yDoc.getArray<Y.Map<any>>(tableId);
   }, [yDoc, tableId]);
 
-  const transformToRow = (row: Y.Map<any>) => {
+  const transformToRow = (row: Y.Map<any>): RowData => {
     return {
       id: row.get("id") as string,
-      date: row.get("date")?.get("value") as string | undefined,
+      date: row.get("date") as string | undefined,
     };
   };
 
-  const [rows, setRows] = useState(yRows.toArray().map(transformToRow));
+  const [rows, setRows] = useState<RowData[]>(
+    yRows.toArray().map(transformToRow),
+  );
 
   useEffect(() => {
     const handler = () => {
@@ -148,12 +106,20 @@ const useYRowsDataOld = (yDoc: Y.Doc, tableId: string) => {
   }, [yRows]);
 
   const addRow = useCallback(() => {
-    yRows.push([new Y.Map<any>([["id", `row-${Date.now()}`]])]);
+    yDoc.transact(() => {
+      const newRow = new Y.Map<any>();
+      newRow.set("id", `row-${Date.now()}`);
+      newRow.set("date", undefined);
+      yRows.push([newRow]);
+    }, rowManagerOrigin);
   }, [yRows]);
 
   const removeRow = useCallback(
     (rowId: string) => {
-      yRows.delete(yRows.toArray().findIndex((row) => row.get("id") === rowId));
+      const index = yRows.toArray().findIndex((row) => row.get("id") === rowId);
+      if (index !== -1) {
+        yRows.delete(index, 1);
+      }
     },
     [yRows],
   );
@@ -163,12 +129,8 @@ const useYRowsDataOld = (yDoc: Y.Doc, tableId: string) => {
       const foundRow = yRows
         .toArray()
         .find((row) => row.get("id")?.toString() === rowId);
-      if (!foundRow) return;
-      const foundField = foundRow.get(field);
-      if (foundField) {
-        foundField?.set("value", value);
-      } else {
-        foundRow.set(field, new Y.Map<any>([["value", value]]));
+      if (foundRow) {
+        foundRow.set(field, value);
       }
     },
     [yRows],
@@ -196,74 +158,7 @@ const useYRowsDataOld = (yDoc: Y.Doc, tableId: string) => {
     [yRows],
   );
 
-  return { rows, addRow, removeRow, setValue, reorderRows };
-};
-
-const useYRowsData = (yDoc: Y.Doc, tableId: string) => {
-  const yRows = useMemo(() => {
-    return yDoc.getMap<RowData[]>(tableId);
-  }, [yDoc, tableId]);
-
-  const [rows, setRows] = useState<RowData[]>(yRows.get("value") ?? []);
-
-  useEffect(() => {
-    const handler = () => {
-      setRows(yRows.get("value") ?? []);
-    };
-    yRows.observe(handler);
-    return () => yRows.unobserve(handler);
-  }, [yRows]);
-
-  const addRow = useCallback(() => {
-    const value = yRows.get("value");
-    yRows.set("value", [
-      ...(value ?? []),
-      { id: `row-${Date.now()}`, date: undefined },
-    ]);
-  }, [yRows]);
-
-  const removeRow = useCallback(
-    (rowId: string) => {
-      const value = yRows.get("value");
-      yRows.set("value", [
-        ...(value?.filter((row) => row.id.toString() !== rowId) ?? []),
-      ]);
-    },
-    [yRows],
-  );
-
-  const setValue = useCallback(
-    (rowId: string, field: keyof RowData, value: string) => {
-      const data = yRows.get("value");
-      const row = data?.find((row) => row.id.toString() === rowId);
-      if (!row || !data) {
-        return;
-      }
-      row[field] = value;
-      yRows.set("value", [...data]);
-    },
-    [yRows],
-  );
-
-  const reorderRows = useCallback(
-    (change: { oldIndex: number; targetIndex: number }) => {
-      const { oldIndex, targetIndex } = change;
-
-      if (oldIndex === targetIndex) return;
-
-      const currentRows = yRows.get("value") ?? [];
-      const newRows = [...currentRows];
-
-      // Remove the item from oldIndex and insert it at targetIndex
-      const [movedItem] = newRows.splice(oldIndex, 1);
-      newRows.splice(targetIndex, 0, movedItem);
-
-      yRows.set("value", newRows);
-    },
-    [yRows],
-  );
-
-  return { rows, addRow, removeRow, setValue, reorderRows };
+  return { yRows, rows, addRow, removeRow, setValue, reorderRows };
 };
 
 // Collaborative Cell Component using TipTap
@@ -275,8 +170,21 @@ const CollabCell: React.FC<{
   shareUndoManager: UndoManager;
 }> = React.memo(({ yDoc, tableId, rowId, field, shareUndoManager }) => {
   const yFragment = useYXMLFragment(yDoc, tableId, rowId, field);
+
+  useEffect(() => {
+    shareUndoManager.addToScope(yFragment);
+  }, [shareUndoManager, yFragment]);
+
   const editor = useEditor({
     extensions: [
+      StarterKit.configure({
+        history: false,
+        document: false,
+        paragraph: false,
+        text: false,
+        bold: false,
+        italic: false,
+      }),
       Document,
       Paragraph,
       Text,
@@ -284,12 +192,10 @@ const CollabCell: React.FC<{
       Italic,
       Collaboration.configure({
         fragment: yFragment,
-        // yUndoOptions: {
-        //   undoManager: shareUndoManager,
-        // },
       }),
+      sharedHistoryExtension(shareUndoManager),
     ],
-    content: "",
+    content: "<paragraph></paragraph>",
     editorProps: {
       attributes: {
         style:
@@ -302,56 +208,13 @@ const CollabCell: React.FC<{
     },
   });
 
-  // useEffect(() => {
-  //   if (editor) {
-  //     shareUndoManager.addToScope(yFragment);
-  //   }
-  // }, [editor, yFragment, shareUndoManager]);
-
-  // Handle keyboard shortcuts for undo/redo
-  useEffect(() => {
-    if (!editor) return;
-
-    shareUndoManager.addToScope(yFragment);
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey || event.metaKey) {
-        if (event.key === "z" && !event.shiftKey) {
-          event.preventDefault();
-          console.log(
-            "Global undo triggered, canUndo:",
-            shareUndoManager.canUndo(),
-            "stackSize:",
-            shareUndoManager.undoStack.length,
-          );
-          if (shareUndoManager.canUndo()) {
-            shareUndoManager.undo();
-          }
-        } else if (event.key === "y" || (event.key === "z" && event.shiftKey)) {
-          event.preventDefault();
-          console.log(
-            "Global redo triggered, canRedo:",
-            shareUndoManager.canRedo(),
-            "stackSize:",
-            shareUndoManager.redoStack.length,
-          );
-          if (shareUndoManager.canRedo()) {
-            shareUndoManager.redo();
-          }
-        }
-      }
-    };
-
-    const editorElement = editor.view.dom;
-    // editorElement.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      // editorElement.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [editor, shareUndoManager]);
-
   if (!editor) {
     return <div style={{ padding: "8px", minHeight: "40px" }}>Loading...</div>;
+  }
+
+  if (!editor.storage.collaborationDocument) {
+    editor.storage.collaborationDocument = yDoc;
+    editor.storage.sharedUndoManager = shareUndoManager;
   }
 
   return (
@@ -392,12 +255,14 @@ const TipTapDataGridComponent: React.FC<{
   element: CustomElement;
   sharedUndoManager: UndoManager;
 }> = ({ yDoc, tableId, element, sharedUndoManager }) => {
-  const { rows, addRow, setValue, reorderRows } = useYRowsData(yDoc, tableId);
+  const { yRows, rows, addRow, setValue, reorderRows } = useYRowsData(
+    yDoc,
+    tableId,
+  );
 
   useEffect(() => {
-    // sharedUndoManager.addToScope(yDoc.getMap(tableId));
-    // sharedUndoManager.addToScope(yDoc.getMap(`${tableId}-wysiwyg`));
-  }, [sharedUndoManager, yDoc]);
+    sharedUndoManager.addToScope(yRows);
+  }, [sharedUndoManager, yRows]);
 
   // Define columns with collaborative editors
   const columns: GridColDef[] = useMemo(
@@ -471,7 +336,7 @@ const TipTapDataGridComponent: React.FC<{
         // disableRowSelectionOnClick
         rowReordering
         rowSelection
-        // disableVirtualization
+        disableVirtualization
         onRowOrderChange={(params) => {
           console.log("Row order changed:", params);
           reorderRows(params);

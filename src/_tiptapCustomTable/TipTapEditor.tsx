@@ -9,6 +9,8 @@ import DataGridExtension from "./extensions/DataGridExtension";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 import { ySyncPluginKey } from "y-prosemirror";
+import { sharedHistoryExtension } from "./extensions/SharedHistoryExtension";
+import { rowManagerOrigin } from "./nodes/consts";
 
 // Define custom types
 type CustomElement = {
@@ -49,10 +51,18 @@ const CollaborativeEditor: React.FC = () => {
 
     // Create shared undo manager for all editors
     const undoManager = new Y.UndoManager([], {
-      trackedOrigins: new Set([null, ySyncPluginKey]),
-      captureTimeout: 400,
+      trackedOrigins: new Set([ySyncPluginKey, rowManagerOrigin]),
+      captureTimeout: 200,
       doc,
     });
+
+    // doc.on("afterTransaction", (tr) => {
+    //   console.log(
+    //     "tracked:",
+    //     undoManager.trackedOrigins.has(tr.origin),
+    //     tr.origin,
+    //   );
+    // });
 
     const handle = setInterval(() => {
       console.log(doc.toJSON());
@@ -101,22 +111,19 @@ const TipTapEditor: React.FC<TipTapEditorProps> = ({
 
   useEffect(() => {
     sharedUndoManager.addToScope(xmlFragment);
-
-    return () => {
-      // sharedUndoManager.scope
-    };
   }, [sharedUndoManager, xmlFragment]);
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         history: false, // Disable built-in history since we use Yjs UndoManager
+        bold: false,
+        italic: false,
       }),
       Bold,
       Italic,
-      Collaboration.configure({
-        fragment: xmlFragment,
-      }),
+      Collaboration.configure({ fragment: xmlFragment }),
+      sharedHistoryExtension(sharedUndoManager),
       DataGridExtension,
     ],
     content: `
@@ -129,14 +136,6 @@ const TipTapEditor: React.FC<TipTapEditorProps> = ({
       },
     },
   });
-
-  // Store the yDoc in editor storage for access in node views
-  useEffect(() => {
-    if (editor) {
-      editor.storage.collaborationDocument = yDoc;
-      editor.storage.sharedUndoManager = sharedUndoManager;
-    }
-  }, [editor, yDoc, sharedUndoManager]);
 
   const insertGrid = useCallback(() => {
     if (editor) {
@@ -158,40 +157,13 @@ const TipTapEditor: React.FC<TipTapEditorProps> = ({
     [editor],
   );
 
-  // Global undo/redo handlers
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent) => {
-      if (event.ctrlKey || event.metaKey) {
-        if (event.key === "z" && !event.shiftKey) {
-          event.preventDefault();
-          console.log(
-            "Global undo triggered, canUndo:",
-            sharedUndoManager.canUndo(),
-            "stackSize:",
-            sharedUndoManager.undoStack.length,
-          );
-          if (sharedUndoManager.canUndo()) {
-            sharedUndoManager.undo();
-          }
-        } else if (event.key === "y" || (event.key === "z" && event.shiftKey)) {
-          event.preventDefault();
-          console.log(
-            "Global redo triggered, canRedo:",
-            sharedUndoManager.canRedo(),
-            "stackSize:",
-            sharedUndoManager.redoStack.length,
-          );
-          if (sharedUndoManager.canRedo()) {
-            sharedUndoManager.redo();
-          }
-        }
-      }
-    },
-    [sharedUndoManager],
-  );
-
   if (!editor) {
     return <div>Loading editor...</div>;
+  }
+
+  if (!editor.storage.collaborationDocument) {
+    editor.storage.collaborationDocument = yDoc;
+    editor.storage.sharedUndoManager = sharedUndoManager;
   }
 
   return (
@@ -244,7 +216,6 @@ const TipTapEditor: React.FC<TipTapEditorProps> = ({
           minHeight: 300,
           bgcolor: "background.paper",
         }}
-        onKeyDown={handleKeyDown}
       >
         <EditorContent editor={editor} />
       </Box>
