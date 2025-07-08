@@ -51,7 +51,7 @@ src/_tiptap/
 
 ### Basic TipTap Editor
 ```tsx
-import { TipTapEditor } from './src/_tiptap';
+import { TipTapEditor } from './src/_tiptap/TipTapEditor';
 
 function App() {
   return <TipTapEditor />;
@@ -60,7 +60,7 @@ function App() {
 
 ### Liveblocks TipTap Editor
 ```tsx
-import { LiveblocksTipTapEditor } from './src/_tiptap';
+import { LiveblocksTipTapEditor } from './src/_tiptap/LiveblocksTipTapEditor';
 
 function App() {
   return <LiveblocksTipTapEditor />;

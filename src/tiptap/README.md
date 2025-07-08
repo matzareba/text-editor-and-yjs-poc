@@ -17,7 +17,7 @@ A Tiptap node that displays an MUI X Grid Pro with specific column requirements:
 ```tsx
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { GridNode } from '../tiptap';
+import { GridNode } from '../tiptap/nodes/GridNode';
 
 const editor = useEditor({
   extensions: [

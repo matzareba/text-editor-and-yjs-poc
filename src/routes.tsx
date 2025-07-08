@@ -7,6 +7,7 @@ import { BlockNoteCallSheetPage } from "./_blockNote/BlockNoteCallSheetPage";
 import { LexicalSelfHostPage } from "./_lexical/LexicalSelfHostPage";
 import TipTapCustomTableEditor from "./_tiptapCustomTable/TipTapEditor";
 import { SharedHistoryEditors } from "./SharedEditors";
+import { ProseMirrorSelfHostPage } from "./_prosemirror/ProseMirrorSelfHostPage";
 
 export const routes: RouteObject[] = [
   {
@@ -44,6 +45,10 @@ export const routes: RouteObject[] = [
       {
         path: "/tiptap-shared-history",
         element: <SharedHistoryEditors />,
+      },
+      {
+        path: "/prosemirror-owncf",
+        element: <ProseMirrorSelfHostPage />,
       },
     ],
   },

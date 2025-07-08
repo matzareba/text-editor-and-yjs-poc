@@ -15,6 +15,7 @@ const navItems: NavItem[] = [
   { path: "/lexical-owncf", label: "Lexical on Own CloudFlare" },
   { path: "/tiptap-custom", label: "TipTap Custom Table" },
   { path: "/tiptap-shared-history", label: "TipTap Shared History" },
+  { path: "/prosemirror-owncf", label: "ProseMirror on Own CloudFlare" },
 ];
 
 export const NavBar = () => {

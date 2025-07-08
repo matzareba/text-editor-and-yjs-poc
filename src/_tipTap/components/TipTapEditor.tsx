@@ -11,122 +11,97 @@ import {
   tipTapLemonlightButtonType,
 } from "./TipTapLemonlightButton/TipTapLemonlightButton";
 import { TipTapSlashCommands } from "./TipTapSlashCommands";
-import { GridNode, gridNodeName } from "../../tiptap/nodes";
-
-const TipTapToolbar = ({ editor }: { editor: any }) => {
-  const insertLemonlightButton = () => {
-    if (editor) {
-      editor
-        .chain()
-        .focus()
-        .insertContent({
-          type: tipTapLemonlightButtonType,
-        })
-        .run();
-    }
-  };
-
-  const insertGridNode = () => {
-    if (editor) {
-      editor
-        .chain()
-        .focus()
-        .insertContent({
-          type: gridNodeName,
-          content: [],
-        })
-        .run();
-    }
-  };
-
-  return (
-    <div
-      style={{
-        border: "1px solid #e9ecef",
-        borderBottom: "none",
-        padding: "0.5rem",
-        backgroundColor: "#f8f9fa",
-        display: "flex",
-        gap: "0.5rem",
-        alignItems: "center",
-      }}
-    >
-      <button
-        onClick={insertLemonlightButton}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "0.25rem",
-          padding: "0.25rem 0.5rem",
-          border: "1px solid #dee2e6",
-          borderRadius: "4px",
-          backgroundColor: "white",
-          cursor: "pointer",
-          fontSize: "0.875rem",
-        }}
-        title="Insert Lemonlight Button"
-      >
-        <TipTapLemonlightButtonIcon size={16} />
-        Send Email
-      </button>
-      <button
-        onClick={insertGridNode}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "0.25rem",
-          padding: "0.25rem 0.5rem",
-          border: "1px solid #dee2e6",
-          borderRadius: "4px",
-          backgroundColor: "white",
-          cursor: "pointer",
-          fontSize: "0.875rem",
-        }}
-        title="Insert MUI X Grid Pro"
-      >
-        Grid
-      </button>
-    </div>
-  );
-};
+import {
+  CustomDateCell, CustomHandleCell,
+  CustomTable,
+  CustomTableRow,
+  CustomTextCell,
+  CustomWrapperWithContext,
+  DateNode, HandleNode
+} from "./TipTapCustomTable/TableNodes";
+import Table from "@tiptap/extension-table";
+import TableRow from "@tiptap/extension-table-row";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
+import { CounterContext } from "./TipTapCustomTable/CounterContext";
+import { useState } from "react";
+import DragHandleExtension from '@tiptap/extension-drag-handle'
+import { DragHandle } from "@tiptap/extension-drag-handle";
+import DragHandleComponent from "@tiptap/extension-drag-handle-react"
+import { TableDragManager } from "./TipTapCustomTable/TableDragManager";
+import { RowHandlePlugin } from "./TipTapCustomTable/RowHandlePlugin";
+import { TipTapToolbar } from "./TipTapToolbar";
 
 export const TipTapEditor = () => {
   const provider = useProvider();
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        history: false,
+        // history: false,
       }),
-      Collaboration.configure({
-        document: provider.doc,
-        field: "content",
-      }),
-      CollaborationCursor.configure({
-        provider: provider,
-        user: MY_USER,
-      }),
+      // Collaboration.configure({
+      //   document: provider.doc,
+      //   field: "content",
+      // }),
+      // CollaborationCursor.configure({
+      //   provider: provider,
+      //   user: MY_USER,
+      // }),
       TipTapLemonlightButton,
       TipTapSlashCommands,
-      GridNode,
+
+      // Table.configure({
+      //   resizable: false,
+      // }),
+      // TableRow,
+      // TableCell,
+      // TableHeader,
+      //
+      DateNode,
+
+      CustomTable.configure({
+        resizable: true,
+        lastColumnResizable: false,
+        allowTableNodeSelection: true,
+      }),
+      CustomTableRow,
+      CustomDateCell,
+      CustomTextCell,
+      CustomWrapperWithContext,
+
+      // CustomHandleCell,
+      // HandleNode,
+      RowHandlePlugin,
+      TableDragManager,
     ],
   });
+
+  const [counter, setCounter] = useState(1);
 
   if (!editor) {
     return null;
   }
 
   return (
-    <div>
-      <TipTapToolbar editor={editor} />
-      <EditorContent
-        style={{
-          border: "1px solid #e9ecef",
-          borderTop: "none",
-          minHeight: "200px",
-          padding: "1rem",
-        }}
-        editor={editor}
-      />
-    </div>
+    <CounterContext.Provider value={{ counter, setCounter }}>
+      <button onClick={() => setCounter((c) => c + 1)}>{counter} add</button>
+      <div>
+        <TipTapToolbar editor={editor} />
+        {/*<DragHandleComponent editor={editor}>*/}
+        {/*  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">*/}
+        {/*    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />*/}
+        {/*  </svg>*/}
+        {/*</DragHandleComponent>*/}
+        <EditorContent
+          style={{
+            border: "1px solid #e9ecef",
+            borderTop: "none",
+            minHeight: "200px",
+            padding: "1rem",
+          }}
+          editor={editor}
+        />
+      </div>
+    </CounterContext.Provider>
   );
 };
