@@ -65,6 +65,7 @@ const useYXMLFragment = (
     let xmlFragment = rowMap.get(field);
     if (!xmlFragment) {
       xmlFragment = new Y.XmlFragment();
+      xmlFragment.insert(0, [new Y.XmlElement("paragraph")]);
       rowMap.set(field, xmlFragment);
     }
 
@@ -263,7 +264,7 @@ const useYRowsData = (yDoc: Y.Doc, tableId: string) => {
     [yRows],
   );
 
-  return { rows, addRow, removeRow, setValue, reorderRows };
+  return { yRows, rows, addRow, removeRow, setValue, reorderRows };
 };
 
 // Collaborative Cell Component using TipTap
@@ -302,52 +303,10 @@ const CollabCell: React.FC<{
     },
   });
 
-  // useEffect(() => {
-  //   if (editor) {
-  //     shareUndoManager.addToScope(yFragment);
-  //   }
-  // }, [editor, yFragment, shareUndoManager]);
-
-  // Handle keyboard shortcuts for undo/redo
   useEffect(() => {
     if (!editor) return;
 
     shareUndoManager.addToScope(yFragment);
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey || event.metaKey) {
-        if (event.key === "z" && !event.shiftKey) {
-          event.preventDefault();
-          console.log(
-            "Global undo triggered, canUndo:",
-            shareUndoManager.canUndo(),
-            "stackSize:",
-            shareUndoManager.undoStack.length,
-          );
-          if (shareUndoManager.canUndo()) {
-            shareUndoManager.undo();
-          }
-        } else if (event.key === "y" || (event.key === "z" && event.shiftKey)) {
-          event.preventDefault();
-          console.log(
-            "Global redo triggered, canRedo:",
-            shareUndoManager.canRedo(),
-            "stackSize:",
-            shareUndoManager.redoStack.length,
-          );
-          if (shareUndoManager.canRedo()) {
-            shareUndoManager.redo();
-          }
-        }
-      }
-    };
-
-    const editorElement = editor.view.dom;
-    // editorElement.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      // editorElement.removeEventListener("keydown", handleKeyDown);
-    };
   }, [editor, shareUndoManager]);
 
   if (!editor) {
@@ -392,12 +351,14 @@ const TipTapDataGridComponent: React.FC<{
   element: CustomElement;
   sharedUndoManager: UndoManager;
 }> = ({ yDoc, tableId, element, sharedUndoManager }) => {
-  const { rows, addRow, setValue, reorderRows } = useYRowsData(yDoc, tableId);
+  const { yRows, rows, addRow, setValue, reorderRows } = useYRowsData(
+    yDoc,
+    tableId,
+  );
 
   useEffect(() => {
-    // sharedUndoManager.addToScope(yDoc.getMap(tableId));
-    // sharedUndoManager.addToScope(yDoc.getMap(`${tableId}-wysiwyg`));
-  }, [sharedUndoManager, yDoc]);
+    sharedUndoManager.addToScope(yRows);
+  }, [sharedUndoManager, yRows]);
 
   // Define columns with collaborative editors
   const columns: GridColDef[] = useMemo(
